@@ -53,6 +53,50 @@ life cycle methods that operate against a persistent store.
 As you can see, the methods are quite similar to Active Record's methods for dealing with database
 records.  But rather than dealing directly with a database record, you're dealing with HTTP resources (which may or may not be database records).
 
+Connection settings (`site`, `headers`, `user`, `password`, `proxy`) and the connections themselves are store in
+thread-local variables to make them thread-safe, so you can also set these dynamically, even in a multi-threaded environment, for instance:
+
+    ActiveResource::Base.site = api_site_for(request)
+
+==== Authentication
+
+Active Resource supports the token based authentication provided by Rails through the <tt>ActionController::HttpAuthentication::Token</tt> class using custom headers.
+
+   class Person < ActiveResource::Base
+     self.headers['Authorization'] = 'Token token="abcd"'
+   end
+
+You can also set any specific HTTP header using the same way.  As mentioned above, headers are thread-safe, so you can set headers dynamically, even in a multi-threaded environment:
+
+    ActiveResource::Base.headers['Authorization'] = current_session_api_token
+
+Connection settings (`site`, `headers`, `user`, `password`, `proxy`) and the connections themselves are store in
+thread-local variables to make them thread-safe, so you can also set these dynamically, even in a multi-threaded environment, for instance:
+
+    ActiveResource::Base.site = api_site_for(request)
+
+==== Authentication
+
+Active Resource supports the token based authentication provided by Rails through the <tt>ActionController::HttpAuthentication::Token</tt> class using custom headers.
+
+   class Person < ActiveResource::Base
+     self.headers['Authorization'] = 'Token token="abcd"'
+   end
+
+You can also set any specific HTTP header using the same way.  As mentioned above, headers are thread-safe, so you can set headers dynamically, even in a multi-threaded environment:
+
+    ActiveResource::Base.headers['Authorization'] = current_session_api_token
+    
+Global Authentication to be used across all subclasses of `ActiveResource::Base` should be handled using the `ActiveResource::Connection` class.
+
+    ActiveResource::Base.connection.auth_type = :bearer
+    ActiveResource::Base.connection.bearer_token = @bearer_token
+    
+    class Person < ActiveResource::Base
+      self.connection.auth_type = :bearer
+      self.connection.bearer_token = @bearer_token
+    end
+
 ==== Protocol
 
 Active Resource is built on a standard JSON or XML format for requesting and submitting resources over HTTP.  It mirrors the RESTful routing
